@@ -55,3 +55,7 @@ func DynamoDBProvider(cfg *viper.Viper) dynamodbiface.DynamoDBAPI {
 func AccountsDataProvider(driver dynamodbiface.DynamoDBAPI, cfg *viper.Viper) core.AccountsDataProxy {
 	return data.NewAccountsData(driver, cfg.GetString(ConfigKeyAccountsTableName))
 }
+
+func TransactionsDataProvider(driver dynamodbiface.DynamoDBAPI, cfg *viper.Viper) core.TransactionsDataProxy {
+	return data.NewTransactionsData(driver, cfg.GetString(ConfigKeyTransactionsTableName))
+}

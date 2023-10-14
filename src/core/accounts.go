@@ -2,14 +2,21 @@ package core
 
 import (
 	"context"
-	"net/http"
+	"errors"
+	"fmt"
 )
 
 const (
 	// DocumentNumberMinLength minimum length of document identifier of an account
-	DocumentNumberMinLength = 11
+	DocumentNumberMinLength = 10
 	// DocumentNumberMaxLength maximum length of document identifier of an account
-	DocumentNumberMaxLength = 48
+	DocumentNumberMaxLength = 64
+)
+
+var InvalidDocumentLengthError = fmt.Errorf(
+	"DocumentNumber should be between %d and %d characters long",
+	DocumentNumberMinLength,
+	DocumentNumberMaxLength,
 )
 
 // Account models an account
@@ -42,10 +49,13 @@ func NewAccountsService(proxy AccountsDataProxy) AccountsService {
 
 func (s *AccountsServiceImpl) CreateAccount(ctx context.Context, accountData *Account) (r *Account, err error) {
 	if len(accountData.DocumentNumber) < DocumentNumberMinLength {
-		return nil, http.ErrAbortHandler
+		return nil, InvalidDocumentLengthError
 	}
 	if len(accountData.DocumentNumber) > DocumentNumberMaxLength {
-		return nil, http.ErrAbortHandler
+		return nil, InvalidDocumentLengthError
+	}
+	if accountData.AccountID == "" {
+		return nil, errors.New("AccountID cannot be empty")
 	}
 	return s.proxy.CreateAccount(ctx, accountData)
 }

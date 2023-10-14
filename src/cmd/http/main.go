@@ -10,10 +10,16 @@ import (
 	"go.uber.org/fx"
 )
 
-func setupRoutes(r *gin.Engine, accountsHandler *svc.AccountsHandler) gin.IRoutes {
-	return r.Group("/v1").
+func setupRoutes(r *gin.Engine,
+	accountsHandler *svc.AccountsHandler,
+	transactionsHandler *svc.TransactionsHandler) gin.IRoutes {
+	v1 := r.Group("/v1")
+	v1.
 		POST("/accounts", accountsHandler.CreateAccount).
 		GET("/accounts/:account_id", accountsHandler.GetAccountByID)
+	v1.
+		POST("/transactions", transactionsHandler.CreateTransaction)
+	return v1
 }
 
 func main() {
@@ -28,12 +34,16 @@ func main() {
 			providers.DynamoDBProvider,
 			// application data layer
 			providers.AccountsDataProvider,
+			providers.TransactionsDataProvider,
 			// application domain service layer
 			core.NewAccountsService,
+			core.NewTransactionsService,
 			// application use cases layer
 			app.NewAccountsUseCase,
+			app.NewTransactionsUseCase,
 			// request service handlers
 			svc.NewAccountsHandler,
+			svc.NewTransactionsHandler,
 			// base HTTP server
 			providers.GinProvider,
 			// setup endpoint structure

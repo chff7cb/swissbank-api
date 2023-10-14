@@ -26,6 +26,7 @@ func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 	response, err := h.uc.CreateAccount(ctx, &newAccountData)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	ctx.JSON(http.StatusOK, response)
@@ -42,6 +43,7 @@ func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
 	response, err := h.uc.GetAccountByID(ctx, accountID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	ctx.JSON(http.StatusOK, response)
