@@ -20,6 +20,7 @@ type AccountResponse struct {
 // AccountsUseCase interface for account use cases
 type AccountsUseCase interface {
 	CreateAccount(context.Context, *CreateAccountForm) (*AccountResponse, error)
+	GetAccountByID(context.Context, string) (*AccountResponse, error)
 }
 
 // AccountsUseCaseImpl provides methods containing application use cases for accounts
@@ -49,4 +50,16 @@ func (uc *AccountsUseCaseImpl) CreateAccount(ctx context.Context, accountData *C
 		DocumentNumber: newAccount.DocumentNumber,
 	}
 	return
+}
+
+func (uc *AccountsUseCaseImpl) GetAccountByID(ctx context.Context, accountID string) (*AccountResponse, error) {
+	accountData, err := uc.service.GetAccountByID(ctx, accountID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AccountResponse{
+		AccountID:      accountData.AccountID,
+		DocumentNumber: accountData.DocumentNumber,
+	}, nil
 }

@@ -30,3 +30,19 @@ func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
+	accountID := ctx.Param("account_id")
+
+	if accountID == "" {
+		ctx.JSON(http.StatusBadRequest, "account_id cannot be empty")
+		return
+	}
+
+	response, err := h.uc.GetAccountByID(ctx, accountID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}

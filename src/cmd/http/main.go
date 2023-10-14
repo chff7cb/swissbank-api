@@ -1,66 +1,52 @@
 package main
 
 import (
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/chff7cb/swissbank/app"
 	"github.com/chff7cb/swissbank/core"
-	"github.com/chff7cb/swissbank/data"
+	"github.com/chff7cb/swissbank/providers"
 	"github.com/chff7cb/swissbank/svc"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 )
-
-func setupConfig() *viper.Viper {
-	viper.AutomaticEnv()
-	return viper.GetViper()
-}
-
-func setupLogging() (*zap.Logger, error) {
-	return zap.NewProduction()
-}
-
-func setupGinServer() *gin.Engine {
-	return gin.Default()
-}
 
 func setupRoutes(r *gin.Engine, accountsHandler *svc.AccountsHandler) gin.IRoutes {
 	return r.Group("/v1").
-		POST("/accounts", accountsHandler.CreateAccount)
-}
-
-func setupDatabase(cfg *viper.Viper) *dynamodb.DynamoDB {
-	sdkSession := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-		Profile:           cfg.GetString("SWISSBANK_AWS_PROFILE"),
-	}))
-
-	return dynamodb.New(sdkSession)
+		POST("/accounts", accountsHandler.CreateAccount).
+		GET("/accounts/:account_id", accountsHandler.GetAccountByID)
 }
 
 func main() {
 	fx.New(
-		// here we will wire in our application layers
+		// here we will wire up application layers
 		fx.Provide(
-			setupConfig,
-			setupLogging,
-			setupDatabase,
-			// data layer
-			data.NewDynamoAccountsData,
-			// domain service layer
+			// load base configuration
+			providers.ViperConfigProvider,
+			// setup logging infrastructure
+			providers.LoggingProvider,
+			// instantiate database clients
+			providers.DynamoDBProvider,
+			// application data layer
+			providers.AccountsDataProvider,
+			// application domain service layer
 			core.NewAccountsService,
-			// use cases layer
+			// application use cases layer
 			app.NewAccountsUseCase,
-			// service handlers
+			// request service handlers
 			svc.NewAccountsHandler,
-			// build our API endpoint structure
-			setupGinServer,
+			// base HTTP server
+			providers.GinProvider,
+			// setup endpoint structure
 			setupRoutes,
 		),
-		fx.Invoke(func(r *gin.Engine, _ gin.IRoutes) error {
-			return r.Run()
+		fx.Invoke(func(r *gin.Engine, _ gin.IRoutes, cfg *viper.Viper) error {
+			var addrs []string
+
+			if cfg.IsSet("SWISSBANK_HTTP_ADDRESS") {
+				addrs = append(addrs, cfg.GetString("SWISSBANK_HTTP_ADDRESS"))
+			}
+
+			return r.Run(addrs...)
 		}),
 	).Run()
 }

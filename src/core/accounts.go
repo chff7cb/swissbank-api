@@ -23,6 +23,7 @@ type Account struct {
 // AccountsDataProxy adapter interface for account data operations
 type AccountsDataProxy interface {
 	CreateAccount(context.Context, *Account) (*Account, error)
+	GetAccountByID(context.Context, string) (*Account, error)
 }
 
 // AccountsService domain service interface for managing accounts
@@ -32,7 +33,7 @@ type AccountsService interface {
 
 // AccountsServiceImpl implements domain service for account data management
 type AccountsServiceImpl struct {
-	Proxy AccountsDataProxy
+	proxy AccountsDataProxy
 }
 
 func NewAccountsService(proxy AccountsDataProxy) AccountsService {
@@ -46,5 +47,9 @@ func (s *AccountsServiceImpl) CreateAccount(ctx context.Context, accountData *Ac
 	if len(accountData.DocumentNumber) > DocumentNumberMaxLength {
 		return nil, http.ErrAbortHandler
 	}
-	return s.Proxy.CreateAccount(ctx, accountData)
+	return s.proxy.CreateAccount(ctx, accountData)
+}
+
+func (s *AccountsServiceImpl) GetAccountByID(ctx context.Context, accountID string) (r *Account, err error) {
+	return s.proxy.GetAccountByID(ctx, accountID)
 }
