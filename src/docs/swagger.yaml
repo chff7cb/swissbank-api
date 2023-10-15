@@ -1,0 +1,121 @@
+basePath: /v1
+definitions:
+  svc.AccountResponse:
+    properties:
+      account_id:
+        type: string
+      document_number:
+        type: string
+    type: object
+  svc.CreateAccountForm:
+    properties:
+      document_number:
+        type: string
+    type: object
+  svc.CreateTransactionForm:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      operation_type_id:
+        type: integer
+    type: object
+  svc.TransactionResponse:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      description:
+        type: string
+      event_timestamp:
+        type: string
+      operation_type_id:
+        type: integer
+      transaction_id:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8182
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the SwissBank API for managing Accounts and Transactions.
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+  termsOfService: http://swagger.io/terms/
+  title: SwissBank challenge API
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: Create an account for a customer identified by a document number
+      parameters:
+      - description: Information for the new account
+        in: body
+        name: accountInfo
+        required: true
+        schema:
+          $ref: '#/definitions/svc.CreateAccountForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/svc.AccountResponse'
+      summary: Create an account
+      tags:
+      - accounts
+  /accounts/{account_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve data of an account identified by its AccountID
+      parameters:
+      - description: ID of the account
+        in: path
+        name: account_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/svc.AccountResponse'
+      summary: Retrieve data of a given account
+      tags:
+      - accounts
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new transaction associated with a given account
+      parameters:
+      - description: Required data of the new transaction
+        in: body
+        name: transactionInfo
+        required: true
+        schema:
+          $ref: '#/definitions/svc.CreateTransactionForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/svc.TransactionResponse'
+      summary: Create a transaction
+      tags:
+      - transactions
+swagger: "2.0"

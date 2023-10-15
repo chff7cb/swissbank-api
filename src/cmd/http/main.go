@@ -7,9 +7,14 @@ import (
 	"github.com/chff7cb/swissbank/svc"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
 	"log"
 	"net/http"
+
+	_ "github.com/chff7cb/swissbank/docs"
+	swaggerfiles "github.com/swaggo/files"
+	_ "github.com/swaggo/gin-swagger"
 )
 
 func setupRoutes(r *gin.Engine,
@@ -24,6 +29,23 @@ func setupRoutes(r *gin.Engine,
 	return v1
 }
 
+// @title           SwissBank challenge API
+// @version         1.0
+// @description     This is the SwissBank API for managing Accounts and Transactions.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  MIT License
+// @license.url   https://opensource.org/license/mit/
+
+// @host      localhost:8182
+// @BasePath  /v1
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	fx.New(
 		// here we will wire up application layers
@@ -49,6 +71,8 @@ func main() {
 			setupRoutes,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, cfg *viper.Viper, r *gin.Engine, _ gin.IRoutes, shutdowner fx.Shutdowner) {
+			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
 			srv := &http.Server{
 				Addr:    cfg.GetString(providers.ConfigKeyHttpListAddress),
 				Handler: r,

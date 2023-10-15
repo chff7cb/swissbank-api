@@ -33,6 +33,15 @@ func NewTransactionsHandler(service core.TransactionsService, provider providers
 	return &TransactionsHandler{service, provider}
 }
 
+// CreateTransaction handles a request for creating a new transaction
+// @Summary      Create a transaction
+// @Description  Registers a new transaction associated with a given account
+// @Tags         transactions
+// @Accept       json
+// @Produce      json
+// @Param        transactionInfo body CreateTransactionForm true "Required data of the new transaction"
+// @Success      200  {object} TransactionResponse
+// @Router       /transactions [post]
 func (h *TransactionsHandler) CreateTransaction(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)
 

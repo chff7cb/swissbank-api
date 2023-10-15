@@ -30,6 +30,14 @@ func NewAccountsHandler(service core.AccountsService, wrapperProvider providers.
 }
 
 // CreateAccount handles a request for creating an account
+// @Summary      Create an account
+// @Description  Create an account for a customer identified by a document number
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        accountInfo body CreateAccountForm true "Information for the new account"
+// @Success      200  {object}  AccountResponse
+// @Router       /accounts [post]
 func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)
 
@@ -57,6 +65,15 @@ func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 	})
 }
 
+// GetAccountByID handles a request for account information
+// @Summary      Retrieve data of a given account
+// @Description  Retrieve data of an account identified by its AccountID
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        account_id path string true "ID of the account"
+// @Success      200  {object}  AccountResponse
+// @Router       /accounts/{account_id} [get]
 func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)
 
