@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/chff7cb/swissbank/svc"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
+	"log"
+	"net/http"
 )
 
 func setupRoutes(r *gin.Engine,
@@ -45,14 +48,25 @@ func main() {
 			// setup endpoint structure
 			setupRoutes,
 		),
-		fx.Invoke(func(r *gin.Engine, _ gin.IRoutes, cfg *viper.Viper) error {
-			var addrs []string
-
-			if cfg.IsSet("SWISSBANK_HTTP_ADDRESS") {
-				addrs = append(addrs, cfg.GetString("SWISSBANK_HTTP_ADDRESS"))
+		fx.Invoke(func(lc fx.Lifecycle, cfg *viper.Viper, r *gin.Engine, _ gin.IRoutes, shutdowner fx.Shutdowner) {
+			srv := &http.Server{
+				Addr:    cfg.GetString(providers.ConfigKeyHttpListAddress),
+				Handler: r,
 			}
 
-			return r.Run(addrs...)
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					go func() {
+						log.Println("http.Server listening on address", srv.Addr)
+						log.Println(srv.ListenAndServe())
+						log.Println(shutdowner.Shutdown())
+					}()
+					return nil
+				},
+				OnStop: func(ctx context.Context) error {
+					return srv.Shutdown(ctx)
+				},
+			})
 		}),
 	).Run()
 }

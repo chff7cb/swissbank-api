@@ -17,6 +17,7 @@ const (
 	ConfigKeyAWSProfile            = "SWISSBANK_AWS_PROFILE"
 	ConfigKeyAWSRegion             = "SWISSBANK_AWS_REGION"
 	ConfigKeyDynamoDBEndpoint      = "SWISSBANK_DYNAMODB_ENDPOINT_URL"
+	ConfigKeyHttpListAddress       = "SWISSBANK_HTTP_LISTEN_ADDRESS"
 )
 
 func ViperConfigProvider() *viper.Viper {
@@ -26,6 +27,7 @@ func ViperConfigProvider() *viper.Viper {
 	// initialize default values
 	cfg.SetDefault(ConfigKeyAccountsTableName, "Accounts")
 	cfg.SetDefault(ConfigKeyTransactionsTableName, "Transactions")
+	cfg.SetDefault(ConfigKeyHttpListAddress, "127.0.0.1:8182")
 
 	return cfg
 }
