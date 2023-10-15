@@ -27,8 +27,6 @@ func main() {
 		fx.Provide(
 			// load base configuration
 			providers.ViperConfigProvider,
-			// setup logging infrastructure
-			providers.LoggingProvider,
 			// instantiate database clients
 			providers.DynamoDBProvider,
 			// wrapper interface for gin methods
