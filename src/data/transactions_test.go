@@ -39,12 +39,6 @@ func (s *transactionsDataTestSuite) SetupTest() {
 	}
 }
 
-// TestNewTransactionsData test the instantiation of a data proxy
-func (s *transactionsDataTestSuite) TestNewTransactionsData() {
-	proxy := data.NewTransactionsData(s.driver, "transactions")
-	assert.NotEqual(s.T(), nil, proxy)
-}
-
 // TestTransactionsDataImpl_CreateTransaction test the creating of a new transaction and assert output data values
 func (s *transactionsDataTestSuite) TestTransactionsDataImpl_CreateTransaction() {
 	ctx := context.Background()

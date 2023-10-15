@@ -1,50 +1,80 @@
 package svc
 
 import (
-	"github.com/chff7cb/swissbank/app"
+	"github.com/chff7cb/swissbank/core"
+	"github.com/chff7cb/swissbank/providers"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 )
 
-// AccountsHandler implements HTTP handler methods for accounts
-type AccountsHandler struct {
-	uc app.AccountsUseCase
+// CreateAccountForm data required for creating an account
+type CreateAccountForm struct {
+	DocumentNumber string `json:"document_number"`
 }
 
-func NewAccountsHandler(uc app.AccountsUseCase) *AccountsHandler {
-	return &AccountsHandler{uc}
+// AccountResponse response data of account information
+type AccountResponse struct {
+	AccountID      string `json:"account_id"`
+	DocumentNumber string `json:"document_number"`
+}
+
+// AccountsHandler implements HTTP handler methods for accounts
+type AccountsHandler struct {
+	service         core.AccountsService
+	wrapperProvider providers.GinWrapperProvider
+}
+
+func NewAccountsHandler(service core.AccountsService, wrapperProvider providers.GinWrapperProvider) *AccountsHandler {
+	return &AccountsHandler{service, wrapperProvider}
 }
 
 // CreateAccount handles a request for creating an account
 func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
-	newAccountData := app.CreateAccountForm{}
-	if err := ctx.ShouldBindJSON(&newAccountData); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+	ginWrapper := h.wrapperProvider.Wrap(ctx)
+
+	accountForm := CreateAccountForm{}
+	if err := ginWrapper.ShouldBindJSON(&accountForm); err != nil {
+		ginWrapper.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	response, err := h.uc.CreateAccount(ctx, &newAccountData)
+	// build new account using form data
+	accountData := core.Account{
+		AccountID:      uuid.NewString(),
+		DocumentNumber: accountForm.DocumentNumber,
+	}
+
+	newAccount, err := h.service.CreateAccount(ctx, &accountData)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ginWrapper.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	ginWrapper.JSON(http.StatusOK, AccountResponse{
+		AccountID:      newAccount.AccountID,
+		DocumentNumber: newAccount.DocumentNumber,
+	})
 }
 
 func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
-	accountID := ctx.Param("account_id")
+	ginWrapper := h.wrapperProvider.Wrap(ctx)
+
+	accountID := ginWrapper.Param("account_id")
 
 	if accountID == "" {
-		ctx.JSON(http.StatusBadRequest, "account_id cannot be empty")
+		ginWrapper.JSON(http.StatusBadRequest, "account_id cannot be empty")
 		return
 	}
 
-	response, err := h.uc.GetAccountByID(ctx, accountID)
+	accountData, err := h.service.GetAccountByID(ctx, accountID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ginWrapper.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	ginWrapper.JSON(http.StatusOK, &AccountResponse{
+		AccountID:      accountData.AccountID,
+		DocumentNumber: accountData.DocumentNumber,
+	})
 }

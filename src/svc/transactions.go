@@ -1,32 +1,68 @@
 package svc
 
 import (
-	"github.com/chff7cb/swissbank/app"
+	"github.com/chff7cb/swissbank/core"
+	"github.com/chff7cb/swissbank/providers"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
+	"time"
 )
 
-type TransactionsHandler struct {
-	uc app.TransactionsUseCase
+type CreateTransactionForm struct {
+	AccountID       string  `json:"account_id"`
+	OperationTypeID int     `json:"operation_type_id"`
+	Amount          float64 `json:"amount"`
 }
 
-func NewTransactionsHandler(uc app.TransactionsUseCase) *TransactionsHandler {
-	return &TransactionsHandler{uc}
+type TransactionResponse struct {
+	TransactionID   string    `json:"transaction_id"`
+	AccountID       string    `json:"account_id"`
+	OperationTypeID int       `json:"operation_type_id"`
+	Amount          float64   `json:"amount"`
+	EventTimestamp  time.Time `json:"event_timestamp"`
+	Description     string    `json:"description"`
+}
+
+type TransactionsHandler struct {
+	service         core.TransactionsService
+	wrapperProvider providers.GinWrapperProvider
+}
+
+func NewTransactionsHandler(service core.TransactionsService, provider providers.GinWrapperProvider) *TransactionsHandler {
+	return &TransactionsHandler{service, provider}
 }
 
 func (h *TransactionsHandler) CreateTransaction(ctx *gin.Context) {
-	transactionFormData := app.CreateTransactionForm{}
+	ginWrapper := h.wrapperProvider.Wrap(ctx)
 
-	if err := ctx.ShouldBindJSON(&transactionFormData); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+	transactionForm := CreateTransactionForm{}
+
+	if err := ginWrapper.ShouldBindJSON(&transactionForm); err != nil {
+		ginWrapper.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	response, err := h.uc.CreateTransaction(ctx, &transactionFormData)
+	transactionData := core.Transaction{
+		TransactionID:   uuid.NewString(),
+		AccountID:       transactionForm.AccountID,
+		Amount:          transactionForm.Amount,
+		OperationTypeID: core.OperationTypeID(transactionForm.OperationTypeID),
+		EventTimestamp:  time.Now(),
+	}
+
+	newTransaction, err := h.service.CreateTransaction(ctx, &transactionData)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ginWrapper.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	ginWrapper.JSON(http.StatusOK, &TransactionResponse{
+		TransactionID:   newTransaction.TransactionID,
+		AccountID:       newTransaction.AccountID,
+		OperationTypeID: int(newTransaction.OperationTypeID),
+		Amount:          newTransaction.Amount,
+		EventTimestamp:  newTransaction.EventTimestamp,
+		Description:     newTransaction.GetDescription(),
+	})
 }

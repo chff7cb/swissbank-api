@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/chff7cb/swissbank/app"
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/chff7cb/swissbank/svc"
@@ -32,15 +31,14 @@ func main() {
 			providers.LoggingProvider,
 			// instantiate database clients
 			providers.DynamoDBProvider,
+			// wrapper interface for gin methods
+			providers.NewGinWrapperProvider,
 			// application data layer
 			providers.AccountsDataProvider,
 			providers.TransactionsDataProvider,
 			// application domain service layer
 			core.NewAccountsService,
 			core.NewTransactionsService,
-			// application use cases layer
-			app.NewAccountsUseCase,
-			app.NewTransactionsUseCase,
 			// request service handlers
 			svc.NewAccountsHandler,
 			svc.NewTransactionsHandler,

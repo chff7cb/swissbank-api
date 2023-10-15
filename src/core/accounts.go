@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"errors"
 	"fmt"
 )
 
@@ -19,9 +18,11 @@ var InvalidDocumentLengthError = fmt.Errorf(
 	DocumentNumberMaxLength,
 )
 
+var InvalidAccountIDError = fmt.Errorf("AccountID is invalid")
+
 // Account models an account
 type Account struct {
-	// AccountID
+	// AccountID unique identifier of an account
 	AccountID string
 	// DocumentNumber is a number that identifies the account's holder
 	DocumentNumber string
@@ -43,10 +44,12 @@ type AccountsServiceImpl struct {
 	proxy AccountsDataProxy
 }
 
+// NewAccountsService creates a new AccountsService that will use the given proxy for handling account data
 func NewAccountsService(proxy AccountsDataProxy) AccountsService {
 	return &AccountsServiceImpl{proxy}
 }
 
+// CreateAccount creates a new account with the given data after running required validations
 func (s *AccountsServiceImpl) CreateAccount(ctx context.Context, accountData *Account) (r *Account, err error) {
 	if len(accountData.DocumentNumber) < DocumentNumberMinLength {
 		return nil, InvalidDocumentLengthError
@@ -55,11 +58,12 @@ func (s *AccountsServiceImpl) CreateAccount(ctx context.Context, accountData *Ac
 		return nil, InvalidDocumentLengthError
 	}
 	if accountData.AccountID == "" {
-		return nil, errors.New("AccountID cannot be empty")
+		return nil, InvalidAccountIDError
 	}
 	return s.proxy.CreateAccount(ctx, accountData)
 }
 
+// GetAccountByID  retrieves account data matching a given accountID
 func (s *AccountsServiceImpl) GetAccountByID(ctx context.Context, accountID string) (r *Account, err error) {
 	return s.proxy.GetAccountByID(ctx, accountID)
 }
