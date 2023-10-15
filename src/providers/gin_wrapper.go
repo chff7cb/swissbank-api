@@ -28,7 +28,7 @@ type ginWrapperImpl struct {
 }
 
 func (g *ginWrapperImpl) ShouldBindJSON(obj any) error {
-	return g.ctx.ShouldBind(obj)
+	return g.ctx.ShouldBindJSON(obj)
 }
 
 func (g *ginWrapperImpl) JSON(code int, obj any) {

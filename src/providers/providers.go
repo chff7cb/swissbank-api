@@ -9,7 +9,6 @@ import (
 	"github.com/chff7cb/swissbank/data"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 const (
@@ -29,10 +28,6 @@ func ViperConfigProvider() *viper.Viper {
 	cfg.SetDefault(ConfigKeyTransactionsTableName, "Transactions")
 
 	return cfg
-}
-
-func LoggingProvider(_ *viper.Viper) (*zap.Logger, error) {
-	return zap.NewProduction()
 }
 
 func GinProvider(_ *viper.Viper) *gin.Engine {
