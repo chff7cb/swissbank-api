@@ -2,6 +2,9 @@ package app_test
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/chff7cb/swissbank/app"
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/mocks"
@@ -9,8 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type transactionsUseCaseTestSuite struct {

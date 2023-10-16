@@ -15,6 +15,7 @@ type accountsDataImpl struct {
 	accountsTable string
 }
 
+// NewAccountsData instantiates a new data proxy for account information
 func NewAccountsData(driver dynamodbiface.DynamoDBAPI, accountsTable string) core.AccountsDataProxy {
 	return &accountsDataImpl{
 		driver:        driver,
@@ -22,6 +23,7 @@ func NewAccountsData(driver dynamodbiface.DynamoDBAPI, accountsTable string) cor
 	}
 }
 
+// CreateAccount creates a new account using DynamoDB
 func (d *accountsDataImpl) CreateAccount(_ context.Context, account *core.Account) (*core.Account, error) {
 	if _, err := d.driver.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(d.accountsTable),
@@ -36,6 +38,7 @@ func (d *accountsDataImpl) CreateAccount(_ context.Context, account *core.Accoun
 	return account, nil
 }
 
+// GetAccountByID lookup account data information by a given AccountID
 func (d *accountsDataImpl) GetAccountByID(_ context.Context, accountID string) (itemResult *core.Account, err error) {
 	// retrieve an account item matching the given accountID
 	result, err := d.driver.GetItem(&dynamodb.GetItemInput{
@@ -46,6 +49,10 @@ func (d *accountsDataImpl) GetAccountByID(_ context.Context, accountID string) (
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	if len(result.Item) == 0 {
+		return nil, core.ErrInvalidAccountID
 	}
 
 	// build the output model from result attributes

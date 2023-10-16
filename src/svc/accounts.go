@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/chff7cb/swissbank/core"
@@ -87,7 +88,12 @@ func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
 
 	accountData, err := h.service.GetAccountByID(ctx, accountID)
 	if err != nil {
-		ginWrapper.JSON(http.StatusBadRequest, err.Error())
+		if errors.Is(err, core.ErrInvalidAccountID) {
+			ginWrapper.JSON(http.StatusNotFound, err.Error())
+		} else {
+			ginWrapper.JSON(http.StatusBadRequest, err.Error())
+		}
+
 		return
 	}
 

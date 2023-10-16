@@ -15,10 +15,12 @@ type transactionsDataImpl struct {
 	transactionsTable string
 }
 
+// NewTransactionsData instantiates a new data proxy for transaction information operations
 func NewTransactionsData(driver dynamodbiface.DynamoDBAPI, transactionsTableName string) core.TransactionsDataProxy {
 	return &transactionsDataImpl{driver, transactionsTableName}
 }
 
+// CreateTransaction create a transaction associated with an account using the provided information
 func (d *transactionsDataImpl) CreateTransaction(_ context.Context, transaction *core.Transaction) (*core.Transaction, error) {
 	if _, err := d.driver.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(d.transactionsTable),

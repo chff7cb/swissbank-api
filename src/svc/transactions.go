@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/chff7cb/swissbank/app"
-
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/gin-gonic/gin"

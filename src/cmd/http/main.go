@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/chff7cb/swissbank/app"
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/docs"
 	"github.com/chff7cb/swissbank/providers"
@@ -65,6 +66,8 @@ func main() {
 			// application domain service layer
 			core.NewAccountsService,
 			core.NewTransactionsService,
+			// use cases setup
+			app.NewTransactionsUseCase,
 			// request service handlers
 			svc.NewAccountsHandler,
 			svc.NewTransactionsHandler,

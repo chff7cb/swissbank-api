@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	errGetItem      = errors.New("getitem error")
-	errPutItemError = errors.New("putitem error")
+	errGetAccountItem = errors.New("getitem error")
+	errPutAccountItem = errors.New("putitem error")
 )
 
 // accountsDataTestSuite test suite for accounts data proxy
@@ -43,15 +43,18 @@ func (s *accountsDataTestSuite) SetupTest() {
 	}
 }
 
-// TestNewAccountsData tests the instantiation of a new accounts data proxy
-func (s *accountsDataTestSuite) TestNewAccountsData() {
-	proxy := data.NewAccountsData(s.driver, "accounts")
-	assert.NotEqual(s.T(), nil, proxy)
-}
+// TestCreateAccount will test the creation of a new account and the output data
+func (s *accountsDataTestSuite) TestCreateAccount() {
+	s.driver.On("PutItem", mock.Anything).
+		Return(func(req *dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error) {
+			assert.NotEqual(s.T(), nil, req.Item["AccountID"].S)
+			assert.NotEqual(s.T(), nil, req.Item["DocumentNumber"].S)
 
-// TestAccountsDataImpl_CreateAccount will test the creation of a new account and the output data
-func (s *accountsDataTestSuite) TestAccountsDataImpl_CreateAccount() {
-	s.driver.On("PutItem", mock.Anything).Return(nil, nil)
+			assert.Equal(s.T(), s.accountData.AccountID, *req.Item["AccountID"].S)
+			assert.Equal(s.T(), s.accountData.DocumentNumber, *req.Item["DocumentNumber"].S)
+
+			return &dynamodb.PutItemOutput{}, nil
+		})
 
 	newAccount, err := s.proxy.CreateAccount(context.Background(), &s.accountData)
 
@@ -60,17 +63,18 @@ func (s *accountsDataTestSuite) TestAccountsDataImpl_CreateAccount() {
 	assert.Equal(s.T(), s.accountData.DocumentNumber, newAccount.DocumentNumber)
 }
 
-// TestAccountsDataImpl_CreateAccount2 tests the case of a PutItem error when creating a new account
-func (s *accountsDataTestSuite) TestAccountsDataImpl_CreateAccount2() {
-	s.driver.On("PutItem", mock.Anything).Return(nil, errPutItemError)
+// TestCreateAccount2 tests the case of a PutItem error when creating a new account
+func (s *accountsDataTestSuite) TestCreateAccount2() {
+	s.driver.On("PutItem", mock.Anything).
+		Return(nil, errPutAccountItem)
 
 	_, err := s.proxy.CreateAccount(context.Background(), &s.accountData)
 
-	assert.Equal(s.T(), errPutItemError, err)
+	assert.Equal(s.T(), errPutAccountItem, err)
 }
 
-// TestAccountsDataImpl_GetAccountByID will test the returned data of the requests account
-func (s *accountsDataTestSuite) TestAccountsDataImpl_GetAccountByID() {
+// TestGetAccountByID will test the returned data of the requests account
+func (s *accountsDataTestSuite) TestGetAccountByID() {
 	getItemOutput := dynamodb.GetItemOutput{
 		Item: map[string]*dynamodb.AttributeValue{
 			"AccountID":      {S: &s.accountData.AccountID},
@@ -79,7 +83,11 @@ func (s *accountsDataTestSuite) TestAccountsDataImpl_GetAccountByID() {
 	}
 
 	s.driver.On("GetItem", mock.Anything).
-		Return(&getItemOutput, nil)
+		Return(func(req *dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error) {
+			assert.NotEqual(s.T(), nil, req.Key["AccountID"].S)
+			assert.Equal(s.T(), s.accountData.AccountID, *req.Key["AccountID"].S)
+			return &getItemOutput, nil
+		}, nil)
 
 	accountData, err := s.proxy.GetAccountByID(context.Background(), s.accountData.AccountID)
 
@@ -88,12 +96,24 @@ func (s *accountsDataTestSuite) TestAccountsDataImpl_GetAccountByID() {
 	assert.Equal(s.T(), s.accountData.DocumentNumber, accountData.DocumentNumber)
 }
 
-// TestAccountsDataImpl_GetAccountByID2 test when retrieving account data fails due to GetItem error
-func (s *accountsDataTestSuite) TestAccountsDataImpl_GetAccountByID2() {
+// TestGetAccountByID2 test when retrieving account data fails due to GetItem error
+func (s *accountsDataTestSuite) TestGetAccountByID2() {
 	s.driver.On("GetItem", mock.Anything).
-		Return(nil, errGetItem)
+		Return(nil, errGetAccountItem)
 
 	_, err := s.proxy.GetAccountByID(context.Background(), s.accountData.AccountID)
 
-	assert.Equal(s.T(), errGetItem, err)
+	assert.Equal(s.T(), errGetAccountItem, err)
+}
+
+// TestGetAccountByID3 test when retrieving account data fails because of an invalid AccountID
+func (s *accountsDataTestSuite) TestGetAccountByID3() {
+	s.driver.On("GetItem", mock.Anything).
+		Return(&dynamodb.GetItemOutput{
+			Item: map[string]*dynamodb.AttributeValue{},
+		}, nil)
+
+	_, err := s.proxy.GetAccountByID(context.Background(), s.accountData.AccountID)
+
+	assert.Equal(s.T(), core.ErrInvalidAccountID, err)
 }
