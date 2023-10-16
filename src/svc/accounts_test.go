@@ -49,7 +49,7 @@ func (s *accountsHandlerTestSuite) SetupTest() {
 	}
 }
 
-func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount() {
+func (s *accountsHandlerTestSuite) TestCreateAccount() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
 	s.ginWrapper.
@@ -83,7 +83,7 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount() {
 	s.handler.CreateAccount(s.ginContext)
 }
 
-func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount2() {
+func (s *accountsHandlerTestSuite) TestCreateAccount2() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
 	// the json decoding should fail
@@ -98,7 +98,7 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount2() {
 	s.handler.CreateAccount(s.ginContext)
 }
 
-func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount3() {
+func (s *accountsHandlerTestSuite) TestCreateAccount3() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
 	s.ginWrapper.
@@ -116,7 +116,7 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount3() {
 	s.handler.CreateAccount(s.ginContext)
 }
 
-func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID() {
+func (s *accountsHandlerTestSuite) TestGetAccountByID() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
 	s.ginWrapper.On("Param", "account_id").
@@ -137,7 +137,7 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID() {
 	s.handler.GetAccountByID(s.ginContext)
 }
 
-func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID2() {
+func (s *accountsHandlerTestSuite) TestGetAccountByID2() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
 	// intentionally return an invalid account_id
@@ -149,7 +149,7 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID2() {
 	s.handler.GetAccountByID(s.ginContext)
 }
 
-func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID3() {
+func (s *accountsHandlerTestSuite) TestGetAccountByID3() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
 	s.ginWrapper.On("Param", "account_id").
@@ -159,6 +159,20 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID3() {
 		Return(nil, errDomain)
 
 	s.ginWrapper.On("JSON", http.StatusBadRequest, errDomain.Error())
+
+	s.handler.GetAccountByID(s.ginContext)
+}
+
+func (s *accountsHandlerTestSuite) TestGetAccountByID4() {
+	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
+
+	s.ginWrapper.On("Param", "account_id").
+		Return(s.accountData.AccountID)
+
+	s.service.On("GetAccountByID", mock.Anything, s.accountData.AccountID).
+		Return(nil, core.ErrInvalidAccountID)
+
+	s.ginWrapper.On("JSON", http.StatusNotFound, core.ErrInvalidAccountID.Error())
 
 	s.handler.GetAccountByID(s.ginContext)
 }

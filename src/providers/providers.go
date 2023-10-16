@@ -22,8 +22,10 @@ const (
 	ConfigKeyAWSRegion = "SWISSBANK_AWS_REGION"
 	// ConfigKeyDynamoDBEndpoint endpoint URL used when running DynamoDB locally
 	ConfigKeyDynamoDBEndpoint = "SWISSBANK_DYNAMODB_ENDPOINT_URL"
-	// ConfigKeyHTTPListAddress listen address for the main API
-	ConfigKeyHTTPListAddress = "SWISSBANK_HTTP_LISTEN_ADDRESS"
+	// ConfigKeyHTTPListenAddress listen address for the main API
+	ConfigKeyHTTPListenAddress = "SWISSBANK_HTTP_LISTEN_ADDRESS"
+	// ConfigKeyReadHeaderTimeout defines the timeout for receiving HTTP headers
+	ConfigKeyReadHeaderTimeout = "SERVER_READ_HEADER_TIMEOUT"
 
 	defaultHTTPReadHeaderTimeout = 15
 )
@@ -35,8 +37,8 @@ func ViperConfigProvider() *viper.Viper {
 	// initialize default values
 	cfg.SetDefault(ConfigKeyAccountsTableName, "Accounts")
 	cfg.SetDefault(ConfigKeyTransactionsTableName, "Transactions")
-	cfg.SetDefault(ConfigKeyHTTPListAddress, ":8182")
-	cfg.SetDefault("HTTP_READ_HEADER_TIMEOUT", defaultHTTPReadHeaderTimeout)
+	cfg.SetDefault(ConfigKeyHTTPListenAddress, ":8182")
+	cfg.SetDefault(ConfigKeyReadHeaderTimeout, defaultHTTPReadHeaderTimeout)
 
 	return cfg
 }

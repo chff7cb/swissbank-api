@@ -20,15 +20,17 @@ import (
 	"go.uber.org/fx"
 )
 
-func setupRoutes(r *gin.Engine,
+func setupRoutes(ginEngine *gin.Engine,
 	accountsHandler *svc.AccountsHandler,
 	transactionsHandler *svc.TransactionsHandler) gin.IRoutes {
-	v1Router := r.Group("/v1")
+	v1Router := ginEngine.Group("/v1")
 	v1Router.
 		POST("/accounts", accountsHandler.CreateAccount).
 		GET("/accounts/:account_id", accountsHandler.GetAccountByID)
 	v1Router.
 		POST("/transactions", transactionsHandler.CreateTransaction)
+
+	ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return v1Router
 }
@@ -78,17 +80,15 @@ func main() {
 		),
 		fx.Invoke(func(lcx fx.Lifecycle, cfg *viper.Viper, ginEngine *gin.Engine, _ gin.IRoutes, shutdownHandler fx.Shutdowner) {
 			srv := &http.Server{
-				Addr:              cfg.GetString(providers.ConfigKeyHTTPListAddress),
+				Addr:              cfg.GetString(providers.ConfigKeyHTTPListenAddress),
 				Handler:           ginEngine,
-				ReadHeaderTimeout: time.Duration(cfg.GetInt("HTTP_READ_HEADER_TIMEOUT")) * time.Second,
+				ReadHeaderTimeout: time.Duration(cfg.GetInt(providers.ConfigKeyReadHeaderTimeout)) * time.Second,
 			}
 
 			addrParts := strings.Split(srv.Addr, ":")
 			if len(addrParts) > 1 {
 				docs.SwaggerInfo.Host = "localhost:" + addrParts[1]
 			}
-
-			ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 			lcx.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {

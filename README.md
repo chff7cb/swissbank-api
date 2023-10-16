@@ -90,7 +90,7 @@ You can run and report tests coverage with the following commands:
 ```bash
 go test ./... -coverprofile /tmp/cover.out
 ```
-```base
+```bash
 go tool cover -func /tmp/cover.out
 ```
 
