@@ -1,19 +1,17 @@
-package main
+package providers
 
 import (
 	"context"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
-	"github.com/chff7cb/swissbank/providers"
 	"github.com/spf13/viper"
-	"go.uber.org/fx"
 	"log"
 )
 
-func migrate(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) (err error) {
+func CreateTables(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) (err error) {
 	_, err = ddb.CreateTable(&dynamodb.CreateTableInput{
-		TableName: aws.String(cfg.GetString(providers.ConfigKeyAccountsTableName)),
+		TableName: aws.String(cfg.GetString(ConfigKeyAccountsTableName)),
 		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
 			ReadCapacityUnits:  aws.Int64(2),
 			WriteCapacityUnits: aws.Int64(2),
@@ -36,7 +34,7 @@ func migrate(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper)
 	}
 
 	_, err = ddb.CreateTable(&dynamodb.CreateTableInput{
-		TableName: aws.String(cfg.GetString(providers.ConfigKeyTransactionsTableName)),
+		TableName: aws.String(cfg.GetString(ConfigKeyTransactionsTableName)),
 		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
 			ReadCapacityUnits:  aws.Int64(2),
 			WriteCapacityUnits: aws.Int64(2),
@@ -58,7 +56,7 @@ func migrate(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper)
 			},
 			{
 				AttributeName: aws.String("AccountID"),
-				KeyType:       aws.String("SORT"),
+				KeyType:       aws.String("RANGE"),
 			},
 		},
 	})
@@ -67,24 +65,4 @@ func migrate(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper)
 	}
 
 	return nil
-}
-
-func main() {
-	fx.New(
-		// here we will wire up application layers
-		fx.Provide(
-			// load base configuration
-			providers.ViperConfigProvider,
-			// instantiate database clients
-			providers.DynamoDBProvider,
-		),
-		fx.Invoke(func(lc fx.Lifecycle, shutdowner fx.Shutdowner, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) {
-			lc.Append(fx.Hook{
-				OnStart: func(ctx context.Context) error {
-					defer func() { _ = shutdowner.Shutdown() }()
-					return migrate(ctx, ddb, cfg)
-				},
-			})
-		}),
-	).Run()
 }

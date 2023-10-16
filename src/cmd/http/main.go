@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/chff7cb/swissbank/core"
+	"github.com/chff7cb/swissbank/docs"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/chff7cb/swissbank/svc"
 	"github.com/gin-gonic/gin"
@@ -11,6 +13,7 @@ import (
 	"go.uber.org/fx"
 	"log"
 	"net/http"
+	"strings"
 
 	_ "github.com/chff7cb/swissbank/docs"
 	swaggerfiles "github.com/swaggo/files"
@@ -71,12 +74,13 @@ func main() {
 			setupRoutes,
 		),
 		fx.Invoke(func(lc fx.Lifecycle, cfg *viper.Viper, r *gin.Engine, _ gin.IRoutes, shutdowner fx.Shutdowner) {
-			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
 			srv := &http.Server{
 				Addr:    cfg.GetString(providers.ConfigKeyHttpListAddress),
 				Handler: r,
 			}
+
+			docs.SwaggerInfo.Host = "localhost:" + strings.Split(srv.Addr, ":")[1]
+			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
@@ -89,6 +93,13 @@ func main() {
 				},
 				OnStop: func(ctx context.Context) error {
 					return srv.Shutdown(ctx)
+				},
+			})
+		}),
+		fx.Invoke(func(lc fx.Lifecycle, shutdowner fx.Shutdowner, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) {
+			lc.Append(fx.Hook{
+				OnStart: func(ctx context.Context) error {
+					return providers.CreateTables(ctx, ddb, cfg)
 				},
 			})
 		}),

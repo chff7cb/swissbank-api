@@ -27,7 +27,7 @@ func ViperConfigProvider() *viper.Viper {
 	// initialize default values
 	cfg.SetDefault(ConfigKeyAccountsTableName, "Accounts")
 	cfg.SetDefault(ConfigKeyTransactionsTableName, "Transactions")
-	cfg.SetDefault(ConfigKeyHttpListAddress, "127.0.0.1:8182")
+	cfg.SetDefault(ConfigKeyHttpListAddress, ":8182")
 
 	return cfg
 }
