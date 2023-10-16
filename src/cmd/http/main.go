@@ -83,7 +83,11 @@ func main() {
 				ReadHeaderTimeout: time.Duration(cfg.GetInt("HTTP_READ_HEADER_TIMEOUT")) * time.Second,
 			}
 
-			docs.SwaggerInfo.Host = "localhost:" + strings.Split(srv.Addr, ":")[1]
+			addrParts := strings.Split(srv.Addr, ":")
+			if len(addrParts) > 1 {
+				docs.SwaggerInfo.Host = "localhost:" + addrParts[1]
+			}
+
 			ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 			lcx.Append(fx.Hook{
