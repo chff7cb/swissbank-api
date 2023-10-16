@@ -17,6 +17,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+var (
+	errBinding = errors.New("could not parse request")
+	errDomain  = errors.New("validation error")
+)
+
 type accountsHandlerTestSuite struct {
 	suite.Suite
 	service         *mocks.AccountsService
@@ -81,16 +86,14 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount() {
 func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount2() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
-	bindingError := errors.New("could not parse request")
-
 	// the json decoding should fail
 	s.ginWrapper.
 		On("ShouldBindJSON", mock.Anything).
-		Return(bindingError)
+		Return(errBinding)
 
 	// an error response is expected
 	s.ginWrapper.
-		On("JSON", http.StatusBadRequest, bindingError.Error())
+		On("JSON", http.StatusBadRequest, errBinding.Error())
 
 	s.handler.CreateAccount(s.ginContext)
 }
@@ -98,19 +101,17 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount2() {
 func (s *accountsHandlerTestSuite) TestAccountsHandler_CreateAccount3() {
 	s.wrapperProvider.On("Wrap", s.ginContext).Return(s.ginWrapper)
 
-	domainError := errors.New("validation error")
-
 	s.ginWrapper.
 		On("ShouldBindJSON", mock.Anything).
 		Return(nil)
 
 	s.service.
 		On("CreateAccount", mock.Anything, mock.Anything).
-		Return(nil, domainError)
+		Return(nil, errDomain)
 
 	// an error response is expected
 	s.ginWrapper.
-		On("JSON", http.StatusBadRequest, domainError.Error())
+		On("JSON", http.StatusBadRequest, errDomain.Error())
 
 	s.handler.CreateAccount(s.ginContext)
 }
@@ -154,11 +155,10 @@ func (s *accountsHandlerTestSuite) TestAccountsHandler_GetAccountByID3() {
 	s.ginWrapper.On("Param", "account_id").
 		Return(s.accountData.AccountID)
 
-	domainError := errors.New("validation error")
 	s.service.On("GetAccountByID", mock.Anything, s.accountData.AccountID).
-		Return(nil, domainError)
+		Return(nil, errDomain)
 
-	s.ginWrapper.On("JSON", http.StatusBadRequest, domainError.Error())
+	s.ginWrapper.On("JSON", http.StatusBadRequest, errDomain.Error())
 
 	s.handler.GetAccountByID(s.ginContext)
 }

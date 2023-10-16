@@ -18,6 +18,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+var (
+	errJSONDecoding     = errors.New("failed to decode json")
+	errDomainValidation = errors.New("validation error")
+)
+
 type transactionsHandlerTestSuite struct {
 	suite.Suite
 	service         *mocks.TransactionsService
@@ -93,20 +98,16 @@ func (s *transactionsHandlerTestSuite) TestTransactionsHandler_CreateTransaction
 func (s *transactionsHandlerTestSuite) TestTransactionsHandler_CreateTransaction2() {
 	s.wrapperProvider.On("Wrap", mock.Anything).Return(s.ginWrapper)
 
-	decodingError := errors.New("failed to decode json")
-
 	s.ginWrapper.On("ShouldBindJSON", mock.Anything).
-		Return(decodingError)
+		Return(errJSONDecoding)
 
-	s.ginWrapper.On("JSON", http.StatusBadRequest, decodingError.Error())
+	s.ginWrapper.On("JSON", http.StatusBadRequest, errJSONDecoding.Error())
 
 	s.handler.CreateTransaction(s.ginContext)
 }
 
 func (s *transactionsHandlerTestSuite) TestTransactionsHandler_CreateTransaction3() {
 	s.wrapperProvider.On("Wrap", mock.Anything).Return(s.ginWrapper)
-
-	domainError := errors.New("validation error")
 
 	s.ginWrapper.On("ShouldBindJSON", mock.Anything).
 		Return(func(v any) error {
@@ -119,9 +120,9 @@ func (s *transactionsHandlerTestSuite) TestTransactionsHandler_CreateTransaction
 		})
 
 	s.service.On("CreateTransaction", mock.Anything, mock.Anything).
-		Return(nil, domainError)
+		Return(nil, errDomainValidation)
 
-	s.ginWrapper.On("JSON", http.StatusBadRequest, domainError.Error())
+	s.ginWrapper.On("JSON", http.StatusBadRequest, errDomainValidation.Error())
 
 	s.handler.CreateTransaction(s.ginContext)
 }

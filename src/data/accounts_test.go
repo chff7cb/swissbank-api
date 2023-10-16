@@ -15,6 +15,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+var (
+	errGetItem      = errors.New("getitem error")
+	errPutItemError = errors.New("putitem error")
+)
+
 // accountsDataTestSuite test suite for accounts data proxy
 type accountsDataTestSuite struct {
 	suite.Suite
@@ -57,12 +62,11 @@ func (s *accountsDataTestSuite) TestAccountsDataImpl_CreateAccount() {
 
 // TestAccountsDataImpl_CreateAccount2 tests the case of a PutItem error when creating a new account
 func (s *accountsDataTestSuite) TestAccountsDataImpl_CreateAccount2() {
-	putItemError := errors.New("putitem error")
-	s.driver.On("PutItem", mock.Anything).Return(nil, putItemError)
+	s.driver.On("PutItem", mock.Anything).Return(nil, errPutItemError)
 
 	_, err := s.proxy.CreateAccount(context.Background(), &s.accountData)
 
-	assert.Equal(s.T(), putItemError, err)
+	assert.Equal(s.T(), errPutItemError, err)
 }
 
 // TestAccountsDataImpl_GetAccountByID will test the returned data of the requests account
@@ -86,11 +90,10 @@ func (s *accountsDataTestSuite) TestAccountsDataImpl_GetAccountByID() {
 
 // TestAccountsDataImpl_GetAccountByID2 test when retrieving account data fails due to GetItem error
 func (s *accountsDataTestSuite) TestAccountsDataImpl_GetAccountByID2() {
-	getItemError := errors.New("getitem error")
 	s.driver.On("GetItem", mock.Anything).
-		Return(nil, getItemError)
+		Return(nil, errGetItem)
 
 	_, err := s.proxy.GetAccountByID(context.Background(), s.accountData.AccountID)
 
-	assert.Equal(s.T(), getItemError, err)
+	assert.Equal(s.T(), errGetItem, err)
 }

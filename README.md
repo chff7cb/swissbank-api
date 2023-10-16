@@ -101,7 +101,7 @@ go tool cover -func /tmp/cover.out
 Code is being checked with the `golangci-lint` tool:
 
 ```bash
-golangci-lint run --enable-all -D depguard -D paralleltest -D tagliatelle
+golangci-lint run --enable-all -D depguard -D paralleltest -D tagliatelle -D godot -D gofumpt -D exhaustivestruct -D lll -D exhaustruct -D nonamedreturns -D ireturn -D wrapcheck -D nlreturn
 ```
 
 The last version of the tool used was `v1.54.2` including all available linters except the ones excluded above.

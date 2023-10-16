@@ -55,18 +55,18 @@ func (s *transactionsServiceTestSuite) TestTransactionsServiceImpl_CreateTransac
 	s.transactionData.TransactionID = ""
 	_, err := s.service.CreateTransaction(context.Background(), &s.transactionData)
 	s.transactionData.TransactionID = transactionID
-	assert.Equal(s.T(), core.EmptyTransactionIDError, err)
+	assert.Equal(s.T(), core.ErrEmptyTransactionID, err)
 
 	s.transactionData.AccountID = ""
 	_, err = s.service.CreateTransaction(context.Background(), &s.transactionData)
 	s.transactionData.AccountID = accountID
 
-	assert.Equal(s.T(), core.EmptyAccountIDError, err)
+	assert.Equal(s.T(), core.ErrEmptyAccountID, err)
 
 	s.transactionData.OperationTypeID = core.OperationTypeID(9999)
 	_, err = s.service.CreateTransaction(context.Background(), &s.transactionData)
 
-	assert.Equal(s.T(), core.InvalidOperationTypeError, err)
+	assert.Equal(s.T(), core.ErrInvalidOperationType, err)
 	assert.Equal(s.T(), "TIPO DESCONHECIDO", s.transactionData.GetDescription())
 
 	allOperationTypes := []core.OperationTypeID{
@@ -79,6 +79,7 @@ func (s *transactionsServiceTestSuite) TestTransactionsServiceImpl_CreateTransac
 	s.proxy.
 		On("CreateTransaction", context.Background(), &s.transactionData).
 		Return(&s.transactionData, nil)
+
 	for i := range allOperationTypes {
 		s.transactionData.OperationTypeID = allOperationTypes[i]
 		newTransaction, err := s.service.CreateTransaction(context.Background(), &s.transactionData)

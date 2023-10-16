@@ -5,17 +5,16 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/docs"
-	_ "github.com/chff7cb/swissbank/docs"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/chff7cb/swissbank/svc"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
-	_ "github.com/swaggo/gin-swagger"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
 )
@@ -23,13 +22,14 @@ import (
 func setupRoutes(r *gin.Engine,
 	accountsHandler *svc.AccountsHandler,
 	transactionsHandler *svc.TransactionsHandler) gin.IRoutes {
-	v1 := r.Group("/v1")
-	v1.
+	v1Router := r.Group("/v1")
+	v1Router.
 		POST("/accounts", accountsHandler.CreateAccount).
 		GET("/accounts/:account_id", accountsHandler.GetAccountByID)
-	v1.
+	v1Router.
 		POST("/transactions", transactionsHandler.CreateTransaction)
-	return v1
+
+	return v1Router
 }
 
 // @title           SwissBank challenge API
@@ -73,22 +73,24 @@ func main() {
 			// setup endpoint structure
 			setupRoutes,
 		),
-		fx.Invoke(func(lc fx.Lifecycle, cfg *viper.Viper, r *gin.Engine, _ gin.IRoutes, shutdowner fx.Shutdowner) {
+		fx.Invoke(func(lcx fx.Lifecycle, cfg *viper.Viper, ginEngine *gin.Engine, _ gin.IRoutes, shutdownHandler fx.Shutdowner) {
 			srv := &http.Server{
-				Addr:    cfg.GetString(providers.ConfigKeyHttpListAddress),
-				Handler: r,
+				Addr:              cfg.GetString(providers.ConfigKeyHTTPListAddress),
+				Handler:           ginEngine,
+				ReadHeaderTimeout: time.Duration(cfg.GetInt("HTTP_READ_HEADER_TIMEOUT")) * time.Second,
 			}
 
 			docs.SwaggerInfo.Host = "localhost:" + strings.Split(srv.Addr, ":")[1]
-			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+			ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-			lc.Append(fx.Hook{
+			lcx.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
 					go func() {
 						log.Println("http.Server listening on address", srv.Addr)
 						log.Println(srv.ListenAndServe())
-						log.Println(shutdowner.Shutdown())
+						log.Println(shutdownHandler.Shutdown())
 					}()
+
 					return nil
 				},
 				OnStop: func(ctx context.Context) error {
@@ -96,7 +98,7 @@ func main() {
 				},
 			})
 		}),
-		fx.Invoke(func(lc fx.Lifecycle, shutdowner fx.Shutdowner, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) {
+		fx.Invoke(func(lc fx.Lifecycle, shutdownHandler fx.Shutdowner, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
 					return providers.CreateTables(ctx, ddb, cfg)

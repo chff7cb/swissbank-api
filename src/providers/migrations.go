@@ -10,12 +10,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	dynamoDBDefaultRCU int64 = 2
+	dynamoDBDefaultWCU int64 = 2
+)
+
+// CreateTables create the necessary DynamoDB table schema
 func CreateTables(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) (err error) {
 	_, err = ddb.CreateTable(&dynamodb.CreateTableInput{
 		TableName: aws.String(cfg.GetString(ConfigKeyAccountsTableName)),
 		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
-			ReadCapacityUnits:  aws.Int64(2),
-			WriteCapacityUnits: aws.Int64(2),
+			ReadCapacityUnits:  aws.Int64(dynamoDBDefaultRCU),
+			WriteCapacityUnits: aws.Int64(dynamoDBDefaultWCU),
 		},
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
 			{
@@ -37,8 +43,8 @@ func CreateTables(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.V
 	_, err = ddb.CreateTable(&dynamodb.CreateTableInput{
 		TableName: aws.String(cfg.GetString(ConfigKeyTransactionsTableName)),
 		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
-			ReadCapacityUnits:  aws.Int64(2),
-			WriteCapacityUnits: aws.Int64(2),
+			ReadCapacityUnits:  aws.Int64(dynamoDBDefaultRCU),
+			WriteCapacityUnits: aws.Int64(dynamoDBDefaultWCU),
 		},
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
 			{

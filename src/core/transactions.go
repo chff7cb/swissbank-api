@@ -21,9 +21,9 @@ const (
 )
 
 var (
-	EmptyTransactionIDError   = errors.New("TransactionID cannot be empty")
-	EmptyAccountIDError       = errors.New("AccountID cannot be empty")
-	InvalidOperationTypeError = errors.New("OperationTypeID is invalid")
+	ErrEmptyTransactionID   = errors.New("TransactionID cannot be empty")
+	ErrEmptyAccountID       = errors.New("AccountID cannot be empty")
+	ErrInvalidOperationType = errors.New("OperationTypeID is invalid")
 )
 
 // Transaction models a transaction associated with a given account
@@ -79,11 +79,11 @@ func NewTransactionsService(proxy TransactionsDataProxy) TransactionsService {
 // CreateTransaction creates a transaction after validating associated data
 func (s *transactionsServiceImpl) CreateTransaction(ctx context.Context, transaction *Transaction) (*Transaction, error) {
 	if transaction.AccountID == "" {
-		return nil, EmptyAccountIDError
+		return nil, ErrEmptyAccountID
 	}
 
 	if transaction.TransactionID == "" {
-		return nil, EmptyTransactionIDError
+		return nil, ErrEmptyTransactionID
 	}
 
 	switch transaction.OperationTypeID {
@@ -92,7 +92,7 @@ func (s *transactionsServiceImpl) CreateTransaction(ctx context.Context, transac
 		OperationIDAccountWithdraw,
 		OperationIDCashPayment:
 	default:
-		return nil, InvalidOperationTypeError
+		return nil, ErrInvalidOperationType
 	}
 
 	return s.proxy.CreateTransaction(ctx, transaction)

@@ -12,13 +12,15 @@ const (
 	DocumentNumberMaxLength = 64
 )
 
-var InvalidDocumentLengthError = fmt.Errorf(
+// ErrInvalidDocumentLength returned when a given document string failed length validation
+var ErrInvalidDocumentLength = fmt.Errorf(
 	"DocumentNumber should be between %d and %d characters long",
 	DocumentNumberMinLength,
 	DocumentNumberMaxLength,
 )
 
-var InvalidAccountIDError = fmt.Errorf("AccountID is invalid")
+// ErrInvalidAccountID returned when an AccountID is invalid
+var ErrInvalidAccountID = fmt.Errorf("AccountID is invalid")
 
 // Account models an account
 type Account struct {
@@ -52,14 +54,17 @@ func NewAccountsService(proxy AccountsDataProxy) AccountsService {
 // CreateAccount creates a new account with the given data after running required validations
 func (s *AccountsServiceImpl) CreateAccount(ctx context.Context, accountData *Account) (r *Account, err error) {
 	if len(accountData.DocumentNumber) < DocumentNumberMinLength {
-		return nil, InvalidDocumentLengthError
+		return nil, ErrInvalidDocumentLength
 	}
+
 	if len(accountData.DocumentNumber) > DocumentNumberMaxLength {
-		return nil, InvalidDocumentLengthError
+		return nil, ErrInvalidDocumentLength
 	}
+
 	if accountData.AccountID == "" {
-		return nil, InvalidAccountIDError
+		return nil, ErrInvalidAccountID
 	}
+
 	return s.proxy.CreateAccount(ctx, accountData)
 }
 

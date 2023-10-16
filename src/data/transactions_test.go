@@ -15,6 +15,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+var (
+	errPutItem = errors.New("putitem error")
+)
+
 type transactionsDataTestSuite struct {
 	suite.Suite
 	driver          *mocks.DynamoDBAPI
@@ -61,12 +65,10 @@ func (s *transactionsDataTestSuite) TestTransactionsDataImpl_CreateTransaction()
 func (s *transactionsDataTestSuite) TestTransactionsDataImpl_CreateTransaction2() {
 	ctx := context.Background()
 
-	putItemError := errors.New("putitem error")
-
 	s.driver.On("PutItem", mock.Anything).
-		Return(nil, putItemError)
+		Return(nil, errPutItem)
 
 	_, err := s.proxy.CreateTransaction(ctx, &s.transactionData)
 
-	assert.Equal(s.T(), putItemError, err)
+	assert.Equal(s.T(), errPutItem, err)
 }

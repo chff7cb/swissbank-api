@@ -51,22 +51,23 @@ func (s *accountsServiceTestSuite) TestAccountsServiceImpl_CreateAccount2() {
 	s.accountData.DocumentNumber = "123"
 	_, err := s.service.CreateAccount(context.Background(), &s.accountData)
 
-	assert.Equal(s.T(), core.InvalidDocumentLengthError, err)
+	assert.Equal(s.T(), core.ErrInvalidDocumentLength, err)
 
 	// test for too many characters in DocumentNumber
 	for i := 0; i < 10; i++ {
 		s.accountData.DocumentNumber += s.accountData.DocumentNumber
 	}
+
 	_, err = s.service.CreateAccount(context.Background(), &s.accountData)
 
-	assert.Equal(s.T(), core.InvalidDocumentLengthError, err)
+	assert.Equal(s.T(), core.ErrInvalidDocumentLength, err)
 
 	// test for empty AccountID
 	s.accountData.AccountID = ""
 	s.accountData.DocumentNumber = "12312312312"
 	_, err = s.service.CreateAccount(context.Background(), &s.accountData)
 
-	assert.Equal(s.T(), core.InvalidAccountIDError, err)
+	assert.Equal(s.T(), core.ErrInvalidAccountID, err)
 }
 
 // TestAccountsServiceImpl_GetAccountByID test for retrieving account data by a given accountID
