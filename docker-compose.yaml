@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  dynamodblocal:
+    image: "amazon/dynamodb-local:latest"
+    ports:
+      - "8000:8000"
+    # if you want persistent storage
+    # volumes:
+    #  - "./docker/dynamodb:/home/dynamodblocal/data"
+    # working_dir: /home/dynamodblocal
+  swissbank-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - dynamodblocal
+    ports:
+      - "127.0.0.1:8182:8182"
+    environment:
+      - AWS_ACCESS_KEY_ID=DUMMYIDEXAMPLE
+      - AWS_SECRET_ACCESS_KEY=DUMMYEXAMPLEKEY
+      - SWISSBANK_DYNAMODB_ENDPOINT_URL=http://dynamodblocal:8000
+      - SWISSBANK_AWS_REGION=us-east-1
