@@ -3,6 +3,9 @@ package data_test
 import (
 	"context"
 	"errors"
+	"testing"
+	"time"
+
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/data"
 	"github.com/chff7cb/swissbank/mocks"
@@ -10,8 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type transactionsDataTestSuite struct {

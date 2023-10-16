@@ -2,13 +2,14 @@ package core_test
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"testing"
-	"time"
 )
 
 type transactionsServiceTestSuite struct {

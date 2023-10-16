@@ -2,11 +2,12 @@ package data
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/chff7cb/swissbank/core"
-	"strconv"
 )
 
 type transactionsDataImpl struct {

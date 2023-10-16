@@ -2,11 +2,12 @@ package providers
 
 import (
 	"context"
+	"log"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/spf13/viper"
-	"log"
 )
 
 func CreateTables(_ context.Context, ddb dynamodbiface.DynamoDBAPI, cfg *viper.Viper) (err error) {

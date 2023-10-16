@@ -2,22 +2,22 @@ package main
 
 import (
 	"context"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
-	"github.com/chff7cb/swissbank/core"
-	"github.com/chff7cb/swissbank/docs"
-	"github.com/chff7cb/swissbank/providers"
-	"github.com/chff7cb/swissbank/svc"
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"go.uber.org/fx"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/chff7cb/swissbank/core"
+	"github.com/chff7cb/swissbank/docs"
 	_ "github.com/chff7cb/swissbank/docs"
-	swaggerfiles "github.com/swaggo/files"
+	"github.com/chff7cb/swissbank/providers"
+	"github.com/chff7cb/swissbank/svc"
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+	swaggerFiles "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/fx"
 )
 
 func setupRoutes(r *gin.Engine,
@@ -80,7 +80,7 @@ func main() {
 			}
 
 			docs.SwaggerInfo.Host = "localhost:" + strings.Split(srv.Addr, ":")[1]
-			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+			r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {

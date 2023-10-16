@@ -94,7 +94,7 @@ go test ./... -coverprofile /tmp/cover.out
 go tool cover -func /tmp/cover.out
 ```
 
-**Right now only code under `src/cmd` is untested.**
+**Right now only code under the `src/cmd`, `src/mocks` and `src/docs` directories are untested.**
 
 ### Checking
 

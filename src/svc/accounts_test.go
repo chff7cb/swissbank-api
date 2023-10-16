@@ -3,6 +3,10 @@ package svc_test
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/mocks"
 	"github.com/chff7cb/swissbank/svc"
@@ -11,9 +15,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 type accountsHandlerTestSuite struct {

@@ -3,6 +3,8 @@ package data_test
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/data"
@@ -11,7 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 // accountsDataTestSuite test suite for accounts data proxy

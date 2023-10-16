@@ -1,11 +1,12 @@
 package svc
 
 import (
+	"net/http"
+
 	"github.com/chff7cb/swissbank/core"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
 )
 
 // CreateAccountForm data required for creating an account
