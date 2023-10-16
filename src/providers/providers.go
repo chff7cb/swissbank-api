@@ -2,6 +2,7 @@ package providers
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
@@ -47,8 +48,8 @@ func GinProvider(_ *viper.Viper) *gin.Engine {
 	return gin.Default()
 }
 
-func DynamoDBProvider(cfg *viper.Viper) dynamodbiface.DynamoDBAPI {
-	sdkSession := session.Must(session.NewSessionWithOptions(session.Options{
+func AWSConfigProvider(cfg *viper.Viper) client.ConfigProvider {
+	return session.Must(session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{
 			Endpoint: aws.String(cfg.GetString(ConfigKeyDynamoDBEndpoint)),
 			Region:   aws.String(cfg.GetString(ConfigKeyAWSRegion)),
@@ -56,8 +57,10 @@ func DynamoDBProvider(cfg *viper.Viper) dynamodbiface.DynamoDBAPI {
 		SharedConfigState: session.SharedConfigEnable,
 		Profile:           cfg.GetString(ConfigKeyAWSProfile),
 	}))
+}
 
-	return dynamodb.New(sdkSession)
+func DynamoDBProvider(awsConfigProvider client.ConfigProvider) dynamodbiface.DynamoDBAPI {
+	return dynamodb.New(awsConfigProvider)
 }
 
 func AccountsDataProvider(driver dynamodbiface.DynamoDBAPI, cfg *viper.Viper) core.AccountsDataProxy {

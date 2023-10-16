@@ -49,6 +49,10 @@ and see the generated swagger documentation.
 **NOTE: In order for the application to work properly we will have to provide it with a functional DynamoDB instance.**
 This can be achieved by either connecting with an existing DynamoDB instance on AWS cloud or using [DynamoDB local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html).
 
+### Docker Compose
+
+Finally there's also a `docker-compose` file that wraps up the construction of a container image using the available Dockerfile and running a DynamoDB local container as well as the required configuration parameters.
+
 ## Database setup
 
 ### Using DynamoDB local
@@ -61,11 +65,7 @@ For the application to access  DynamoDB local running on Docker we have to confi
 
 **See previous example of running with Docker.**
 
-The source project also contains a `local.env` file outlying these required parameters.
-
-### Docker Compose
-
-Finally there's also a `docker-compose` file that wraps up the construction of a container image using the available Dockerfile and running a DynamoDB local container as well as the required configuration parameters.
+The source project also contains a [`local.env`](local.env) file outlying these required parameters.
 
 ### DynamoDB on AWS cloud
 

@@ -58,6 +58,8 @@ func main() {
 		fx.Provide(
 			// load base configuration
 			providers.ViperConfigProvider,
+			// setup AWS client from our base configuration
+			providers.AWSConfigProvider,
 			// instantiate database clients
 			providers.DynamoDBProvider,
 			// wrapper interface for gin methods

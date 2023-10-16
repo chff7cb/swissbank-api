@@ -1,9 +1,11 @@
 package providers_test
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/chff7cb/swissbank/mocks"
 	"github.com/chff7cb/swissbank/providers"
 	"github.com/gin-gonic/gin"
@@ -31,14 +33,30 @@ func TestGinProvider(t *testing.T) {
 	assert.Equal(t, "/", engine.BasePath())
 }
 
-func TestDynamoDBProvider(t *testing.T) {
+func TestAWSConfigProvider(t *testing.T) {
 	cfg := providers.ViperConfigProvider()
 
-	ddb := providers.DynamoDBProvider(cfg)
+	dynamodbEndpointURL := "http://localhost:8000"
+	awsRegion := "us-east-1"
 
-	result, err := ddb.DescribeEndpoints(&dynamodb.DescribeEndpointsInput{})
-	assert.Equal(t, nil, err)
-	assert.Greater(t, len(result.Endpoints), 0)
+	cfg.Set(providers.ConfigKeyDynamoDBEndpoint, dynamodbEndpointURL)
+	cfg.Set(providers.ConfigKeyAWSRegion, awsRegion)
+
+	configProvider := providers.AWSConfigProvider(cfg)
+	awsConfig := configProvider.ClientConfig(dynamodb.ServiceName)
+
+	assert.Equal(t, dynamodbEndpointURL, awsConfig.Endpoint)
+	assert.Equal(t, awsRegion, awsConfig.SigningRegion)
+}
+
+type awsConfigProviderImpl struct{}
+
+func (a awsConfigProviderImpl) ClientConfig(string, ...*aws.Config) client.Config {
+	return client.Config{Config: &aws.Config{}}
+}
+
+func TestDynamoDBProvider(t *testing.T) {
+	assert.NotEqual(t, nil, providers.DynamoDBProvider(&awsConfigProviderImpl{}))
 }
 
 func TestAccountsDataProvider(t *testing.T) {
