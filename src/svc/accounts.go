@@ -27,6 +27,7 @@ type AccountsHandler struct {
 	wrapperProvider providers.GinWrapperProvider
 }
 
+// NewAccountsHandler instantiates a new handler of account related requests
 func NewAccountsHandler(service core.AccountsService, wrapperProvider providers.GinWrapperProvider) *AccountsHandler {
 	return &AccountsHandler{service, wrapperProvider}
 }
@@ -37,8 +38,10 @@ func NewAccountsHandler(service core.AccountsService, wrapperProvider providers.
 // @Tags         accounts
 // @Accept       json
 // @Produce      json
-// @Param        accountInfo body CreateAccountForm true "Information for the new account"
+// @Param        account_data body CreateAccountForm true "Information for the new account"
 // @Success      200  {object}  AccountResponse
+// @Failure      400  {string}  "Invalid account information provided"
+// @Failure      500  {string}  "The server could not complete the request due to an internal error"
 // @Router       /accounts [post]
 func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)
@@ -75,6 +78,8 @@ func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 // @Produce      json
 // @Param        account_id path string true "ID of the account"
 // @Success      200  {object}  AccountResponse
+// @Failure      404  {string}  "No account with the given AccountID could be found"
+// @Failure      500  {string}  "The server could not complete the request due to an internal error"
 // @Router       /accounts/{account_id} [get]
 func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)

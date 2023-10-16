@@ -61,7 +61,7 @@ paths:
       parameters:
       - description: Information for the new account
         in: body
-        name: accountInfo
+        name: account_data
         required: true
         schema:
           $ref: '#/definitions/svc.CreateAccountForm'
@@ -72,6 +72,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/svc.AccountResponse'
+        "400":
+          description: Invalid account information provided
+          schema:
+            type: string
+        "500":
+          description: The server could not complete the request due to an internal
+            error
+          schema:
+            type: string
       summary: Create an account
       tags:
       - accounts
@@ -93,6 +102,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/svc.AccountResponse'
+        "404":
+          description: No account with the given AccountID could be found
+          schema:
+            type: string
+        "500":
+          description: The server could not complete the request due to an internal
+            error
+          schema:
+            type: string
       summary: Retrieve data of a given account
       tags:
       - accounts
@@ -115,6 +133,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/svc.TransactionResponse'
+        "400":
+          description: Invalid transaction information provided
+          schema:
+            type: string
+        "500":
+          description: The server could not complete the request due to an internal
+            error
+          schema:
+            type: string
       summary: Create a transaction
       tags:
       - transactions

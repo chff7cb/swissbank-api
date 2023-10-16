@@ -46,7 +46,9 @@ func NewTransactionsHandler(useCase app.TransactionsUseCase, provider providers.
 // @Accept       json
 // @Produce      json
 // @Param        transactionInfo body CreateTransactionForm true "Required data of the new transaction"
-// @Success      200  {object} TransactionResponse
+// @Success      200  {object}  TransactionResponse
+// @Failure      400  {string}  "Invalid transaction information provided"
+// @Failure      500  {string}  "The server could not complete the request due to an internal error"
 // @Router       /transactions [post]
 func (h *TransactionsHandler) CreateTransaction(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)

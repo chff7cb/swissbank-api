@@ -34,7 +34,7 @@
                 "parameters": [
                     {
                         "description": "Information for the new account",
-                        "name": "accountInfo",
+                        "name": "account_data",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -47,6 +47,18 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/svc.AccountResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid account information provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request due to an internal error",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -79,6 +91,18 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/svc.AccountResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "No account with the given AccountID could be found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request due to an internal error",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -113,6 +137,18 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/svc.TransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid transaction information provided",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "The server could not complete the request due to an internal error",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
