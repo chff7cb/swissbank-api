@@ -1,4 +1,7 @@
 # SwissBank API
+
+[![codecov](https://codecov.io/gh/chff7cb/swissbank-api/graph/badge.svg?token=843EQJ5CJ7)](https://codecov.io/gh/chff7cb/swissbank-api)
+
 Simple application written in Golang that provides an API for managing financial accounts and transactions.
 
 ## About
