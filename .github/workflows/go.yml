@@ -46,4 +46,4 @@ jobs:
         BUILD_ARTIFACT=${{ vars.AWS_LAMBDA_FUNCTION_NAME }}_build_${GITHUB_SHA}.zip
         zip ${BUILD_ARTIFACT} bootstrap
         aws s3 cp ${BUILD_ARTIFACT} s3://${{ secrets.AWS_ARTIFACT_BUCKET_NAME }}/${BUILD_ARTIFACT}
-        aws lambda update-function-code --function-name ${{ AWS_LAMBDA_FUNCTION_NAME }} --s3-bucket ${{ secrets.AWS_ARTIFACT_BUCKET_NAME }} --s3-key ${BUILD_ARTIFACT} > /dev/null
+        aws lambda update-function-code --function-name ${{ vars.AWS_LAMBDA_FUNCTION_NAME }} --s3-bucket ${{ secrets.AWS_ARTIFACT_BUCKET_NAME }} --s3-key ${BUILD_ARTIFACT} > /dev/null
