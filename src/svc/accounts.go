@@ -42,7 +42,7 @@ func NewAccountsHandler(service core.AccountsService, wrapperProvider providers.
 // @Success      200  {object}  AccountResponse
 // @Failure      400  {string}  "Invalid account information provided"
 // @Failure      500  {string}  "The server could not complete the request due to an internal error"
-// @Router       /accounts [post]
+// @Router       /v1/accounts [post]
 func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)
 
@@ -80,7 +80,7 @@ func (h *AccountsHandler) CreateAccount(ctx *gin.Context) {
 // @Success      200  {object}  AccountResponse
 // @Failure      404  {string}  "No account with the given AccountID could be found"
 // @Failure      500  {string}  "The server could not complete the request due to an internal error"
-// @Router       /accounts/{account_id} [get]
+// @Router       /v1/accounts/{account_id} [get]
 func (h *AccountsHandler) GetAccountByID(ctx *gin.Context) {
 	ginWrapper := h.wrapperProvider.Wrap(ctx)
 

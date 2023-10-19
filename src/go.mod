@@ -3,7 +3,9 @@ module github.com/chff7cb/swissbank
 go 1.21
 
 require (
+	github.com/aws/aws-lambda-go v1.41.0
 	github.com/aws/aws-sdk-go v1.45.25
+	github.com/awslabs/aws-lambda-go-api-proxy v0.16.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.1
 	github.com/spf13/viper v1.17.0

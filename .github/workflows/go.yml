@@ -25,10 +25,25 @@ jobs:
         go-version: '1.20'
 
     - name: Build
-      run: go build -v cmd/http/main.go
+      run: go build -v -o bootstrap cmd/http/main.go
 
     - name: Test
       run: go test ./... -coverprofile coverage.out
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
+
+    - name: AWS authenticate
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: AWS Deploy
+      env:
+        BUILD_ARTIFACT: ${AWS_LAMBDA_FUNCTION_NAME}_build_${GITHUB_SHA}
+      run: |
+        zip ${BUILD_ARTIFACT} bootstrap
+        aws s3 cp ${BUILD_ARTIFACT} s3://${{ secrets.AWS_ARTIFACT_BUCKET_NAME }}/${BUILD_ARTIFACT}
+        aws lambda update-function-code --function-name $AWS_LAMBDA_FUNCTION_NAME --s3-bucket ${{ secrets.AWS_ARTIFACT_BUCKET_NAME }} --s3-key ${BUILD_ARTIFACT} > /dev/null
