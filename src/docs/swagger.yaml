@@ -1,4 +1,4 @@
-basePath: /v1
+basePath: /
 definitions:
   svc.AccountResponse:
     properties:
@@ -53,7 +53,7 @@ info:
   title: SwissBank challenge API
   version: "1.0"
 paths:
-  /accounts:
+  /v1/accounts:
     post:
       consumes:
       - application/json
@@ -84,7 +84,7 @@ paths:
       summary: Create an account
       tags:
       - accounts
-  /accounts/{account_id}:
+  /v1/accounts/{account_id}:
     get:
       consumes:
       - application/json
@@ -114,7 +114,7 @@ paths:
       summary: Retrieve data of a given account
       tags:
       - accounts
-  /transactions:
+  /v1/transactions:
     post:
       consumes:
       - application/json

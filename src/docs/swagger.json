@@ -16,9 +16,9 @@
         "version": "1.0"
     },
     "host": "localhost:8182",
-    "basePath": "/v1",
+    "basePath": "/",
     "paths": {
-        "/accounts": {
+        "/v1/accounts": {
             "post": {
                 "description": "Create an account for a customer identified by a document number",
                 "consumes": [
@@ -64,7 +64,7 @@
                 }
             }
         },
-        "/accounts/{account_id}": {
+        "/v1/accounts/{account_id}": {
             "get": {
                 "description": "Retrieve data of an account identified by its AccountID",
                 "consumes": [
@@ -108,7 +108,7 @@
                 }
             }
         },
-        "/transactions": {
+        "/v1/transactions": {
             "post": {
                 "description": "Registers a new transaction associated with a given account",
                 "consumes": [

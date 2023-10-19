@@ -48,7 +48,7 @@ func setupRoutes(ginEngine *gin.Engine,
 // @license.url   https://opensource.org/license/mit/
 
 // @host      localhost:8182
-// @BasePath  /v1
+// @BasePath  /
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
