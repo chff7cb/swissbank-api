@@ -42,9 +42,8 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: AWS Deploy
-      env:
-        BUILD_ARTIFACT: ${AWS_LAMBDA_FUNCTION_NAME}_build_${GITHUB_SHA}
       run: |
+        BUILD_ARTIFACT=${AWS_LAMBDA_FUNCTION_NAME}_build_${GITHUB_SHA}.zip
         zip ${BUILD_ARTIFACT} bootstrap
         aws s3 cp ${BUILD_ARTIFACT} s3://${{ secrets.AWS_ARTIFACT_BUCKET_NAME }}/${BUILD_ARTIFACT}
         aws lambda update-function-code --function-name $AWS_LAMBDA_FUNCTION_NAME --s3-bucket ${{ secrets.AWS_ARTIFACT_BUCKET_NAME }} --s3-key ${BUILD_ARTIFACT} > /dev/null
